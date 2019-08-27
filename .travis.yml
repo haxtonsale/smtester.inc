@@ -18,8 +18,7 @@ install:
   - tar -xzf $(cat sourcemod-latest-linux)
 
 before_script:
-  - mv smtester_test.sp addons/sourcemod/scripting
-  - cp -R include/ addons/sourcemod/scripting
+  - cp -R scripting/ addons/sourcemod/
   - cd addons/sourcemod/scripting
   
   - chmod +x ./spcomp
