@@ -1,0 +1,56 @@
+language: minimal
+
+sudo: false
+
+addons:
+    apt_packages:
+      - lib32stdc++6
+      - libc6
+      - libncurses5:i386
+      - libtinfo5:i386
+      - libcurl3-gnutls:i386
+
+env:
+  - SMVERSION=1.10 MMVERSION=1.11
+
+install:
+  - wget --input-file=http://sourcemod.net/smdrop/$SMVERSION/sourcemod-latest-linux
+  - tar -xzf $(cat sourcemod-latest-linux)
+
+before_script:
+  - cp -R configs/ scripting/ addons/sourcemod/
+  - cd addons/sourcemod/scripting
+  
+  - chmod +x ./spcomp
+ 
+jobs:
+    include:
+      - stage: compile
+        script:
+          - ./spcomp smtester_test.sp
+      - stage: test
+        script:
+          - ./spcomp smtester_test.sp
+          
+          - mv smtester_test.smx ../plugins
+          
+          - cd ../../..
+          
+          - wget "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz"
+          - mkdir steamcmd
+          - tar -xzf steamcmd_linux.tar.gz -C steamcmd
+          - cd steamcmd
+          - mkdir tf2
+          - ./steamcmd.sh +login anonymous +force_install_dir ./tf2 +app_update 232250 +quit
+          - cd ..
+          - cp -R addons/ steamcmd/tf2/tf/
+          - cd steamcmd/tf2/tf
+          
+          - wget --input-file=https://mms.alliedmods.net/mmsdrop/$MMVERSION/mmsource-latest-linux
+          - tar -xzf $(cat mmsource-latest-linux)
+          
+          - chmod -R +w ../
+          
+          - ../srcds_run +map koth_nucleus +tf_allow_server_hibernation 0 +tf_bot_join_after_player 0 +sv_cheats 1 +mp_autoteambalance 0 || true
+          
+          - if grep -q "1" addons/sourcemod/logs/test_result.txt; then exit 1; fi
