@@ -1,1 +1,1 @@
-# smtester.inc
+# smtester.inc [![Build Status](https://travis-ci.com/haxtonsale/smtester.inc.svg?branch=master)](https://travis-ci.com/haxtonsale/smtester.inc)
